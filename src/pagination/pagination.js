@@ -46,6 +46,7 @@ var splitPage = function(obj){
         prevClick = obj.prevClick || function(){},
         nextClick = obj.nextClick || function(){},
         itemClick = obj.itemClick || function(){},
+        type = obj.type || 'type1',
         _this = this,
         e = document.getElementById(wrap);
         

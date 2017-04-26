@@ -83,21 +83,28 @@ class Blessing extends Base{
 };
 
 
-
 Blessing.prototype.init =function(){
-    this.getDB();
+    this.getDB(()=>{
+        new Pagination({
+            totalPage:this.totalPage,
+            pageSize:5,
+            wrap:'pagewrap'
+        });
+    });
     this.bindEvent();
+    //调用分页
 }
 
-Blessing.prototype.getDB = function(){
+Blessing.prototype.getDB = function(cb){
     jsonp({
         url:this.config.url.urlGet,
         success:db=>{
             this.page = 1;
             this.db = db.result;
-            this.pageTotal = Math.ceil(this.db.length/this.config.listSize);
+            this.totalPage = Math.ceil(this.db.length/this.config.listSize);
             
             this.createDOM();
+            cb&& cb();
         },
         error:this.config.error
     });
