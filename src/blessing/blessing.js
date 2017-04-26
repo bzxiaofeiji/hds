@@ -88,7 +88,7 @@ Blessing.prototype.init =function(){
         new Pagination({
             totalPage:this.totalPage,
             pageSize:5,
-            wrap:'pagewrap'
+            wrap:'test'
         });
     });
     this.bindEvent();
