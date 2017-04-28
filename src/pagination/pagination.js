@@ -176,10 +176,8 @@ class Pagination {
     constructor(config){
         //默认配置
         this.config = {
-            pages: [],
-            vpages: [],
-            nowPage: 1,
             index: 1,
+            nowPage: 1,
             totalPage: 1,
             pageSize: 5,
             pageWrap: 'pagewrap',
@@ -187,34 +185,111 @@ class Pagination {
             prevPageText: '上一页',
             nextPageText: '下一页',
             firstPageText: '首页',
-            endPageText: '尾页',
-            type: 'type1',
-            firstClick: defaultFun,
-            endClick: defaultFun,
-            prevClick: defaultFun,
-            nextClick :defaultFun,
-            itemClick: defaultFun,
+            lastPageText: '尾页',
+            skip: false,
+            showFirst: false,
+            showLast: false,
             pageClick: defaultFun
         }
         for(var item in config){
             this.config[item] = config[item];
         }
 
+        this.len  = this.config.totalPage < this.config.pageSize? this.config.totalPage : this.config.pageSize;
+        this.mid = Math.ceil(this.config.pageSize/2);
+        this.pageWrap = document.getElementById(this.config.pageWrap);
         this.init();
     }
     init() {
-        this.config.pages = this.createArr(this.config.totalPage);
-        console.log(this.config.pages);
+        this.render();
+        this.bindEvent();
     }
 
-    createArr(len) {
-        var pages = [],
-            i = 0;
-
-        while(len--){
-            pages.push(++i);
+    //生成第默认页码数组
+    render(len) {
+        this.config.nowPage = 4;
+        var html = [];
+        html.push(`<span class="page-prev">${this.config.prevPageText}</span>`);
+        html.push(`<span class="page-first">${this.config.firstPageText}</span>`);
+        //前几页
+        if(this.config.nowPage <= this.mid){
+            this.createFirst(html);
         }
-        return pages;
+        //后几页
+        else if(this.config.totalPage - this.config.nowPage < this.mid){
+            this.createLast(html);
+        }
+        //中间页
+        else{
+            this.createMid(html);
+        }
+
+        if(this.config.nowPage != this.config.totalPage){
+            html.push(`<span class="page-next">${this.config.nextPageText}</span>`);
+        }
+
+        this.pageWrap.innerHTML = html.join('');
+        
+    }
+
+    //生成前几页的html
+    createFirst(html){
+        let i = 0;
+        html.pop();
+        if(this.config.nowPage == 1){
+            html.pop();
+        }
+        while(++i<=this.len){
+            let className = this.config.nowPage == i?this.config.activeClass:'';
+            html.push(`<span class="page-item ${className}">${i}</span>`);
+        }
+        html.push(`<span class="page-item">...</span>`);
+        html.push(`<span class="page-end">${this.config.lastPageText}</span>`);
+    }
+
+    //生成后几页的html
+    createLast(html){
+        let i = this.config.totalPage -this.config.pageSize;
+
+        html.push(`<span class="page-item">...</span>`);
+        while(++i <= this.config.totalPage){
+            let className = this.config.nowPage == i?this.config.activeClass:'';
+            html.push(`<span class="page-item ${className}">${i}</span>`);
+        }
+
+    }
+
+    //生成中间页的html
+    createMid(html){
+        let i = this.config.nowPage -this.mid,
+            count = this.config.pageSize+1;
+        
+        html.push(`<span class="page-item">...</span>`);
+        while(--count){
+            ++i;
+            let className = this.config.nowPage == i?this.config.activeClass:'';
+            html.push(`<span class="page-item ${className}">${i}</span>`);
+        }
+        html.push(`<span class="page-item">...</span>`);
+        html.push(`<span class="page-end">${this.config.lastPageText}</span>`);
+    }
+
+    bindEvent(){
+        this.pageWrap.addEventListener('click',e=>{
+            var target = e.target,
+                className = target.className,
+                id = target.id;
+            
+            if(id == this.config.pageWrap){
+                return;
+            }
+
+            console.log(className);
+            if(className.indexOf('page-item') != -1){
+                let page = target.innerHTML;
+                console.log(page);
+            }
+        });
     }
 
 }

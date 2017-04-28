@@ -86,9 +86,10 @@ class Blessing extends Base{
 Blessing.prototype.init =function(){
     this.getDB(()=>{
         new Pagination({
-            totalPage:this.totalPage,
-            pageSize:5,
-            wrap:'test'
+            // totalPage:this.totalPage,
+            totalPage:14,
+            pageSize:3,
+            wrap:'pagewrap'
         });
     });
     this.bindEvent();
