@@ -1,0 +1,55 @@
+#pagewrap{
+	height: 30px;
+	line-height: 30px;
+	text-align: center;
+}
+#pagewrap span{
+	display: inline-block;
+	text-align: center;;
+	line-height: 30px;
+	width: 30px;
+	height: 30px;
+}
+#pagewrap .page-prev,
+#pagewrap .page-next,
+#pagewrap .page-first,
+#pagewrap .page-last{
+	width: 60px;
+	cursor: pointer;
+}
+#pagewrap .page-item{
+	cursor: pointer;
+}
+#pagewrap .page-item.on{
+	background: #ccc;
+}
+#pagewrap .hds-skip{
+	width: auto;
+	color: rgb(153, 153, 153);
+	font-size: 14px;
+}
+#pagewrap .hds-skip #hds-skip-input,
+#pagewrap .hds-skip #hds-skip-button{
+	display: inline-block;
+	height: 30px;
+    line-height: 30px;
+    border: 1px solid #e2e2e2;
+    border-radius: 2px;
+    vertical-align: top;
+    background-color: #fff;
+}
+#pagewrap .hds-skip #hds-skip-input{
+	display: inline-block;
+	width: 50px;
+	padding: 0;
+	margin: 0 5px;
+	color: black;
+	font-size: 14px;
+	padding: 0 10px;
+	text-align: center;
+}
+#pagewrap .hds-skip #hds-skip-button{
+	margin-left: 5px;
+    padding: 0 15px;
+    cursor: pointer;
+}

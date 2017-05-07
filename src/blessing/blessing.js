@@ -80,131 +80,135 @@ class Blessing extends Base{
         this.init();
     }
 
+    init(){
+        this.getDB(()=>{
+            new Pagination({
+                // totalPage:this.totalPage,
+                totalPage:14,
+                pageSize:5,
+                wrap:'pagewrap',
+                showFirst: true,
+                showLast: true,
+                skip:true,
+                pageClick:page=>{
+                    console.log(page);
+                }
+            });
+        });
+        this.bindEvent();
+    }
+
+    getDB(cb){
+        jsonp({
+            url:this.config.url.urlGet,
+            success:db=>{
+                this.page = 1;
+                this.db = db.result;
+                this.totalPage = Math.ceil(this.db.length/this.config.listSize);
+                
+                this.createDOM();
+                cb&& cb();
+            },
+            error:this.config.error
+        });
+    }
+
+    createDOM(){
+        var end = this.config.listSize * this.page,
+            start = end - this.config.listSize,
+            db = this.db.slice(start,end);
+
+        this.config.willRender();
+        var db = this.config.render(db);
+
+        this.setInnerText(this.container,db);
+        this.config.didRender();
+    }
+
+    bindEvent(){
+        //绑定提交事件
+        this.addEvent(this.uploadBox,'click',e=>{
+            var className = e.target.className,
+                db = {
+                    disp_contact:[],
+                    hide_contact : [],
+                    content : ''
+                };
+
+            if(className == 'hds-submit'){
+
+                //检查用户名
+                var usernameResult = checkVal({
+                    e:this.username,
+                    config:this.config,
+                    db:db,
+                    suc:val=>{
+                        db.disp_contact.push(val);
+                        db.hide_contact.push(val);
+                    },
+                    err:errText=>{
+                        this.config.error(errText || '用户名格式错误');
+                    }
+                });
+
+                if(!usernameResult){
+                    return;
+                }
+
+                var contactResult = checkVal({
+                    e:this.contact,
+                    config:this.config,
+                    db:db,
+                    err:errText=>{
+                        this.config.error(errText || '联系方式格式错误');
+                    }
+                });
+
+                if(!contactResult){
+                    return;
+                }
+
+                var addResult = checkVal({
+                    e:this.add,
+                    config:this.config,
+                    db:db,
+                    err:errText=>{
+                        this.config.error(errText || '额外参数格式错误');
+                    }
+                });
+
+                if(!addResult){
+                    return;
+                }
+
+                var contentResult = checkVal({
+                    e:this.content,
+                    config:this.config,
+                    db:db,
+                    suc:val=>{
+                        db.content = val;
+                    },
+                    err:errText=>{
+                        this.config.error(errText || '祝福内容格式错误');
+                    }
+                });
+
+                if(!contentResult){
+                    return;
+                }
+
+                //提交数据
+                this.config.willSubmit(db);
+                jsonp({
+                    url:this.config.url.urlPost,
+                    db:db,
+                    success:this.config.success
+                });
+            }
+        });
+    }
 };
 
-
-Blessing.prototype.init =function(){
-    this.getDB(()=>{
-        new Pagination({
-            // totalPage:this.totalPage,
-            totalPage:14,
-            pageSize:3,
-            wrap:'pagewrap'
-        });
-    });
-    this.bindEvent();
-    //调用分页
-}
-
-Blessing.prototype.getDB = function(cb){
-    jsonp({
-        url:this.config.url.urlGet,
-        success:db=>{
-            this.page = 1;
-            this.db = db.result;
-            this.totalPage = Math.ceil(this.db.length/this.config.listSize);
-            
-            this.createDOM();
-            cb&& cb();
-        },
-        error:this.config.error
-    });
-}
-
-Blessing.prototype.createDOM = function(){
-
-    var end = this.config.listSize * this.page,
-        start = end - this.config.listSize,
-        db = this.db.slice(start,end);
-
-    this.config.willRender();
-    var db = this.config.render(db);
-
-    this.setInnerText(this.container,db);
-    this.config.didRender();
-}
-Blessing.prototype.bindEvent = function(){
-    //绑定提交事件
-    this.addEvent(this.uploadBox,'click',e=>{
-        var className = e.target.className,
-            db = {
-                disp_contact:[],
-                hide_contact : [],
-                content : ''
-            };
-
-        if(className == 'hds-submit'){
-
-            //检查用户名
-            var usernameResult = checkVal({
-                e:this.username,
-                config:this.config,
-                db:db,
-                suc:val=>{
-                    db.disp_contact.push(val);
-                    db.hide_contact.push(val);
-                },
-                err:errText=>{
-                    this.config.error(errText || '用户名格式错误');
-                }
-            });
-
-            if(!usernameResult){
-                return;
-            }
-
-            var contactResult = checkVal({
-                e:this.contact,
-                config:this.config,
-                db:db,
-                err:errText=>{
-                    this.config.error(errText || '联系方式格式错误');
-                }
-            });
-
-            if(!contactResult){
-                return;
-            }
-
-            var addResult = checkVal({
-                e:this.add,
-                config:this.config,
-                db:db,
-                err:errText=>{
-                    this.config.error(errText || '额外参数格式错误');
-                }
-            });
-
-            if(!addResult){
-                return;
-            }
-
-            var contentResult = checkVal({
-                e:this.content,
-                config:this.config,
-                db:db,
-                suc:val=>{
-                    db.content = val;
-                },
-                err:errText=>{
-                    this.config.error(errText || '祝福内容格式错误');
-                }
-            });
-
-            if(!contentResult){
-                return;
-            }
-
-            //提交数据
-            this.config.willSubmit(db);
-            jsonp({
-                url:this.config.url.urlPost,
-                db:db,
-                success:this.config.success
-            });
-        }
-    });
-}
 
 
 module.exports = Blessing;
