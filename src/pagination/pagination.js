@@ -31,29 +31,29 @@ class Pagination {
         this.len  = this.config.totalPage < this.config.pageSize? this.config.totalPage : this.config.pageSize;
         this.mid = Math.ceil(this.config.pageSize/2);
         this.pageWrap = document.getElementById(this.config.pageWrap);
-        this.init();
+        this._init();
     }
-    init() {
-        this.render();
-        this.bindEvent();
+    _init() {
+        this._render();
+        this._bindEvent();
     }
 
     //生成第默认页码数组
-    render() {
+    _render() {
         var html = [];
         html.push(`<span class="page-prev">${this.config.prevPageText}</span>`);
         this.config.showFirst && html.push(`<span class="page-first">${this.config.firstPageText}</span>`);
         //前几页
         if(this.config.nowPage <= this.mid){
-            this.createFirst(html);
+            this._createFirst(html);
         }
         //后几页
         else if(this.config.totalPage - this.config.nowPage < this.mid){
-            this.createLast(html);
+            this._createLast(html);
         }
         //中间页
         else{
-            this.createMid(html);
+            this._createMid(html);
         }
 
         if(this.config.nowPage != this.config.totalPage){
@@ -61,7 +61,7 @@ class Pagination {
         }
 
         //是否渲染跳页
-        this.config.skip && this.createSkip(html);
+        this.config.skip && this._createSkip(html);
         //追加外层容器
         html.unshift('<div id="hds-pagination">');
         html.push('<div>');
@@ -70,9 +70,9 @@ class Pagination {
     }
 
     //生成前几页的html
-    createFirst(html){
+    _createFirst(html){
         let i = 0;
-        html.pop();
+        this.config.showFirst && html.pop();
         if(this.config.nowPage == 1){
             html.pop();
         }
@@ -80,15 +80,15 @@ class Pagination {
             let className = this.config.nowPage == i?this.config.activeClass:'';
             html.push(`<span class="page-item ${className}">${i}</span>`);
         }
-        html.push(`<span class="page-empty">...</span>`);
+        (this.config.totalPage > this.config.pageSize) && html.push(`<span class="page-empty">...</span>`);
         this.config.showLast && html.push(`<span class="page-last">${this.config.lastPageText}</span>`);
     }
 
     //生成后几页的html
-    createLast(html){
+    _createLast(html){
         let i = this.config.totalPage -this.config.pageSize;
-
-        html.push(`<span class="page-empty">...</span>`);
+        i = i<0?0:i;
+        (this.config.totalPage > this.config.pageSize) && html.push(`<span class="page-empty">...</span>`);
         while(++i <= this.config.totalPage){
             let className = this.config.nowPage == i?this.config.activeClass:'';
             html.push(`<span class="page-item ${className}">${i}</span>`);
@@ -97,29 +97,29 @@ class Pagination {
     }
 
     //生成中间页的html
-    createMid(html){
+    _createMid(html){
         let i = this.config.nowPage -this.mid,
             count = this.config.pageSize+1;
         
-        html.push(`<span class="page-empty">...</span>`);
+        (this.config.totalPage > this.config.pageSize) && html.push(`<span class="page-empty">...</span>`);
         while(--count){
             ++i;
             let className = this.config.nowPage == i?this.config.activeClass:'';
             html.push(`<span class="page-item ${className}">${i}</span>`);
         }
-        html.push(`<span class="page-empty">...</span>`);
+        (this.config.totalPage > this.config.pageSize) && html.push(`<span class="page-empty">...</span>`);
         this.config.showLast && html.push(`<span class="page-last">${this.config.lastPageText}</span>`);
     }
 
     //生成页码跳转的html
-    createSkip(html){
+    _createSkip(html){
         html.push('<span class="hds-skip">跳转到');
         html.push('<input type="text" id="hds-skip-input">页');
         html.push('<input type="button" id="hds-skip-button" value="确定">');
         html.push('</span>');
     }
 
-    bindEvent(){
+    _bindEvent(){
         this.pageWrap.addEventListener('click',e=>{
             var target = e.target,
                 className = target.className,
@@ -134,7 +134,7 @@ class Pagination {
                 let page = +target.innerHTML;
                 if(this.config.nowPage != page){
                     this.config.nowPage = page;
-                    this.render();
+                    this._render();
                     this.config.pageClick(this.config.nowPage,target);
                 }
                 return;
@@ -145,7 +145,7 @@ class Pagination {
                 
                 if(this.config.nowPage !=1){
                     --this.config.nowPage;
-                    this.render();
+                    this._render();
                     this.config.pageClick(this.config.nowPage,target);
                 }
                 return;
@@ -155,7 +155,7 @@ class Pagination {
             if(className.indexOf('page-next') != -1){
                 if(this.config.nowPage != this.config.totalPage){
                     ++this.config.nowPage;
-                    this.render();
+                    this._render();
                     this.config.pageClick(this.config.nowPage,target);
                 }
                 return;
@@ -164,7 +164,7 @@ class Pagination {
             if(className.indexOf('page-first') != -1){
                 if(this.config.nowPage !=1){
                     this.config.nowPage = 1;
-                    this.render();
+                    this._render();
                     this.config.pageClick(this.config.nowPage,target);
                 }
                 return;
@@ -174,7 +174,7 @@ class Pagination {
             if(className.indexOf('page-last') != -1){
                 if(this.config.nowPage != this.config.totalPage){
                     this.config.nowPage = this.config.totalPage;
-                    this.render();
+                    this._render();
                     this.config.pageClick(this.config.nowPage,target);
                 }
                 return;
@@ -187,7 +187,7 @@ class Pagination {
                 page = page <= 0 ? 1:page;
                 if(page != this.config.nowPage){
                     this.config.nowPage = page;
-                    this.render();
+                    this._render();
                     this.config.pageClick(this.config.nowPage,target);
                 }
             }
@@ -201,6 +201,14 @@ class Pagination {
                     target.value=target.value.replace(/\D/g,'');
                 }
             });
+        }
+    }
+
+    skip(page){
+        page = +page || 1;
+        if(page != this.config.nowPage){
+            this.config.nowPage = page;
+            this._render();
         }
     }
 

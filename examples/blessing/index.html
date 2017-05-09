@@ -14,26 +14,47 @@
         <textarea placeholder="内容" class="hds-content"></textarea>
         <input type="button" class="hds-submit">
     </div>
-    <div id="container">
-
+    <div class="wrap">
+        <div id="blessing" class="blessing">
+        </div>
     </div>
     <div id="pagewrap"></div>
     <script src="../../hds-v1.0.js"></script>
     <!--<script src="../../build/hds-v1.0.js"></script>-->
     <script>
-        hds.blessing({
+        var ble = hds.blessing({
             aid:103,
             cid:4,
             origin:'ptbus',
+            clearVal:true,
+            container:'blessing',
+            pageWrap:'pagewrap',
+            showFirst:false,
+            showLast:false,
+            skip:true,
+            onInit:db=>{
+                // console.log(db);
+            },
             success:msg=>{
                 alert('数据提交成功');
+                ble.reload();
             },
             render:db=>{
-                console.log(db);
-                var html = "<div>123</div>";
-                return html;
+                var html = [];
+                for(var i=0,len = db.length;i<len;++i){
+                    if(db[i]){
+                        html.push('<div class="blessing-item">');
+                        html.push('<div class="icon"></div>');
+                        html.push('<p>'+db[i].content);
+                        html.push('</p>');
+                        html.push('</div>');
+                    }
+                }
+                return html.join('');
             }
         });
+
+
     </script>
 </body>
 </html>

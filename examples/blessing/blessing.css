@@ -53,3 +53,37 @@
     padding: 0 15px;
     cursor: pointer;
 }
+
+.wrap{
+    width: 1200px;
+    margin: 0 auto;
+}
+.blessing{
+    padding-left: 144px;
+    width: 1108px;
+    height: 425px;
+    overflow: hidden;
+    margin-bottom: 45px;
+}
+.blessing .blessing-item{
+    box-sizing: border-box;
+    position: relative;
+    float: left;
+    width: 192px;
+    height: 187px;
+    border-radius: 8px;
+    border: 1px solid #d3c496;
+    margin-right: 49px;
+    margin-bottom: 50px;
+    padding: 26px 16px 0;
+}
+.blessing .icon{
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    width: 15px;
+    height: 15px;
+    background: #fff;
+    border-radius: 50%;
+    border: 1px solid #d3c496;
+}

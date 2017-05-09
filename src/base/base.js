@@ -13,7 +13,14 @@ class Base {
             listSize:8,
             nowPage:1,
             totalPage:1,
+            showFirst:false,
+            showLast:false,
+            skip:false,
+            clearVal:true,  //上传成功后清除输入框的数据
             // default fun
+            onInit(){
+
+            },
             error(msg){
                 alert(msg)
             },
@@ -24,6 +31,9 @@ class Base {
 
             },
             didRender(){
+
+            },
+            pageClick(){
 
             },
             success(){

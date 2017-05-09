@@ -5,7 +5,7 @@ const Base = require('../base/base.js'),
       Pagination = require('../pagination/pagination.js');
 
 //拼接blessing组件的url地址
-var getURL = (aid,cid,origin)=>{
+let getURL = (aid,cid,origin)=>{
 
     let baseUrl = 'http://hdsupport.'+origin+'.com/api/index?aid='+aid+'&cid='+cid+'&s=';
 
@@ -16,12 +16,12 @@ var getURL = (aid,cid,origin)=>{
     }
 }
 
-var render = db=>{
+let render = db=>{
     throw new Error('render方法为必传参数')
 }
 
 //判断正则
-var testReg = (val,reg,fun)=>{
+let testReg = (val,reg,fun)=>{
     if(reg){
         var reg = new RegExp(reg);
         return reg.test(val);
@@ -32,7 +32,7 @@ var testReg = (val,reg,fun)=>{
 
 
 //检查数据
-var checkVal = obj=>{
+let checkVal = obj=>{
     var config = obj.config,
         db = obj.db;
     var suc = obj.suc || function(val){
@@ -62,6 +62,7 @@ var checkVal = obj=>{
     }
 };
 
+
 class Blessing extends Base{
     constructor(config){
         super(config);
@@ -77,28 +78,28 @@ class Blessing extends Base{
 
         this.container = this.getId(this.config.container);
 
-        this.init();
+        this._init();
     }
 
-    init(){
-        this.getDB(()=>{
-            new Pagination({
-                // totalPage:this.totalPage,
-                totalPage:14,
-                pageSize:5,
-                wrap:'pagewrap',
-                showFirst: true,
-                showLast: true,
-                skip:true,
-                pageClick:page=>{
-                    console.log(page);
-                }
-            });
+    _init(){
+        this._getDB(()=>{
+            //复制配置对象
+            let config = JSON.parse(JSON.stringify(this.config));
+            config.pageClick = page=>{
+                this.page = page;
+                this._createDOM();
+                this.config.pageClick();
+            };
+            config.totalPage = this.totalPage;
+            //调用分页模块
+            this.pagination = new Pagination(config);
+
+            this.config.onInit(this);
         });
-        this.bindEvent();
+        this._bindEvent();
     }
 
-    getDB(cb){
+    _getDB(cb){
         jsonp({
             url:this.config.url.urlGet,
             success:db=>{
@@ -106,14 +107,14 @@ class Blessing extends Base{
                 this.db = db.result;
                 this.totalPage = Math.ceil(this.db.length/this.config.listSize);
                 
-                this.createDOM();
+                this._createDOM();
                 cb&& cb();
             },
             error:this.config.error
         });
     }
 
-    createDOM(){
+    _createDOM(){
         var end = this.config.listSize * this.page,
             start = end - this.config.listSize,
             db = this.db.slice(start,end);
@@ -121,11 +122,12 @@ class Blessing extends Base{
         this.config.willRender();
         var db = this.config.render(db);
 
-        this.setInnerText(this.container,db);
+        this.container.innerHTML = db;
+        // this.setInnerText(this.container,db);
         this.config.didRender();
     }
 
-    bindEvent(){
+    _bindEvent(){
         //绑定提交事件
         this.addEvent(this.uploadBox,'click',e=>{
             var className = e.target.className,
@@ -202,9 +204,45 @@ class Blessing extends Base{
                 jsonp({
                     url:this.config.url.urlPost,
                     db:db,
-                    success:this.config.success
+                    success:db=>{
+                        if(this.config.clearVal){
+                            this.username[0] && (this.username[0].value = '');
+                            this.contact[0] && (this.contact[0].value = '');
+                            this.add[0] && (this.add[0].value = '');
+                            this.content[0] && (this.content[0].value = '');
+                        }
+                        this.config.success(db);
+                    }
                 });
             }
+        });
+    }
+
+    skip(page){
+        page = +page || 1;
+        if(this.page != page){
+            this.page = page;
+            this._createDOM();
+            this.pagination.skip(page);
+        }
+    }
+
+    reload(){
+        this._getDB(()=>{
+            this.pagination = new Pagination({
+                totalPage:this.totalPage,
+                pageSize:5,
+                wrap:'pagewrap',
+                showFirst: this.config.showFirst,
+                showLast: this.config.showLast,
+                skip: this.config.skip,
+                pageClick:page=>{
+                    this.page = page;
+                    this._createDOM();
+                }
+            });
+
+            this.config.onInit(this);
         });
     }
 };
